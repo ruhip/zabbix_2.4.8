@@ -109,6 +109,143 @@ exit:
  * Author: Alexander Vladishev                                                *
  *                                                                            *
  ******************************************************************************/
+
+static void     add_discovered_host_groups(zbx_uint64_t hostid, zbx_vector_uint64_t *groupids)
+{
+        const char      *__function_name = "add_discovered_host_groups";
+
+        DB_RESULT       result;
+        DB_ROW          row;
+        zbx_uint64_t    groupid;
+        char            *sql = NULL;
+        size_t          sql_alloc = 256, sql_offset = 0;
+        int             i;
+
+        zabbix_log(LOG_LEVEL_DEBUG, "In %s()", __function_name);
+
+        sql = zbx_malloc(sql, sql_alloc);
+        /*
+        zbx_snprintf_alloc(&sql, &sql_alloc, &sql_offset,
+                        "select groupid"
+                        " from hosts_groups"
+                        " where hostid=" ZBX_FS_UI64
+                                " and",
+                        hostid);
+        DBadd_condition_alloc(&sql, &sql_alloc, &sql_offset, "groupid", groupids->values, groupids->values_num);
+        */
+         zbx_snprintf_alloc(&sql, &sql_alloc, &sql_offset,
+                        "select groupid"
+                        " from hosts_groups"
+                        " where hostid=" ZBX_FS_UI64,
+                        hostid);
+        result = DBselect("%s", sql);
+
+        zbx_free(sql);
+
+        for( i = 0; i < groupids->values_num; i++ )
+        {
+                 int ngroupid = groupids->values[i];
+                 zabbix_log(LOG_LEVEL_INFORMATION,"fuck_show 1 groupid:%d",ngroupid);
+        }
+        int nDiscoverGroup = -1;
+        int nOtherGroupid = -1;
+        while (NULL != (row = DBfetch(result)))
+        {
+                ZBX_STR2UINT64(groupid, row[0]);
+                zabbix_log(LOG_LEVEL_INFORMATION,"fuck_yes:db_groupid:%d",groupid);
+                i = zbx_vector_uint64_search(groupids, groupid , ZBX_DEFAULT_UINT64_COMPARE_FUNC);
+                if( i > -1  )
+                {
+                    zbx_vector_uint64_remove_noorder(groupids, i);
+                }
+                if( groupid == 5 )
+                {
+                    nDiscoverGroup = 1;
+                }else{
+                    nOtherGroupid = groupid;
+                }
+        }
+
+        for( i = 0; i < groupids->values_num; i++ )
+        {
+                 int ngroupid = groupids->values[i];
+                 zabbix_log(LOG_LEVEL_INFORMATION,"fuck_show 2 groupid:%d",ngroupid);
+        }
+        if( groupids->values_num > 0)
+        {
+
+                if( 1 == nDiscoverGroup  &&   nOtherGroupid > 0  )
+                {
+                     zabbix_log(LOG_LEVEL_INFORMATION,"fuck_0: clear groupids");
+                     zbx_vector_uint64_clear(groupids);
+                }else if( -1 == nDiscoverGroup  &&   nOtherGroupid > 0 )
+                {
+                     for( i = 0; i < groupids->values_num; i++ )
+                     {
+                         int ngroupid = groupids->values[i];
+                         zabbix_log(LOG_LEVEL_INFORMATION,"fuck_1:enter add_discovered_host_groups,remove groupid:%d",ngroupid);
+                         if( 5 != ngroupid )
+                         {
+                             zabbix_log(LOG_LEVEL_INFORMATION,"fuck_2:enter add_discovered_host_groups");
+                             zbx_vector_uint64_remove_noorder(groupids, i);
+                         }
+                     }
+                }
+        }
+        for( i = 0; i < groupids->values_num; i++ )
+        {
+                 int ngroupid = groupids->values[i];
+                 zabbix_log(LOG_LEVEL_INFORMATION,"fuck_show 3 groupid:%d",ngroupid);
+        }
+        /*
+        while (NULL != (row = DBfetch(result)))
+        {
+                ZBX_STR2UINT64(groupid, row[0]);
+
+                if (FAIL == (i = zbx_vector_uint64_search(groupids, groupid, ZBX_DEFAULT_UINT64_COMPARE_FUNC)))
+                {
+                        THIS_SHOULD_NEVER_HAPPEN;
+                        continue;
+                }
+
+                zabbix_log(LOG_LEVEL_INFORMATION,"fuck:enter add_discovered_host_groups,remove groupid:%d",groupid);
+                zbx_vector_uint64_clear(groupids);
+                //zbx_vector_uint64_remove_noorder(groupids, i);
+        }
+        */
+
+        DBfree_result(result);
+        if( 0 == groupids->values_num )
+        {
+            zabbix_log(LOG_LEVEL_INFORMATION,"fuck:enter add_discovered_host_groups,0 == groupids->values_num");
+        }
+        if (0 != groupids->values_num)
+        {
+                zbx_uint64_t    hostgroupid;
+                zbx_db_insert_t db_insert;
+
+                hostgroupid = DBget_maxid_num("hosts_groups", groupids->values_num);
+
+                zbx_db_insert_prepare(&db_insert, "hosts_groups", "hostgroupid", "hostid", "groupid", NULL);
+
+                zbx_vector_uint64_sort(groupids, ZBX_DEFAULT_UINT64_COMPARE_FUNC);
+
+                for (i = 0; i < groupids->values_num; i++)
+                {
+                        zbx_db_insert_add_values(&db_insert, hostgroupid++, hostid, groupids->values[i]);
+                }
+
+                zbx_db_insert_execute(&db_insert);
+                zbx_db_insert_clean(&db_insert);
+        }
+
+        zabbix_log(LOG_LEVEL_DEBUG, "End of %s()", __function_name);
+}
+
+
+
+/*modify by ruhip 20170206*/
+/*
 static void	add_discovered_host_groups(zbx_uint64_t hostid, zbx_vector_uint64_t *groupids)
 {
 	const char	*__function_name = "add_discovered_host_groups";
@@ -172,7 +309,7 @@ static void	add_discovered_host_groups(zbx_uint64_t hostid, zbx_vector_uint64_t 
 
 	zabbix_log(LOG_LEVEL_DEBUG, "End of %s()", __function_name);
 }
-
+*/
 /******************************************************************************
  *                                                                            *
  * Function: add_discovered_host                                              *
