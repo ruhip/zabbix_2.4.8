@@ -189,6 +189,7 @@ static void     add_discovered_host_groups(zbx_uint64_t hostid, zbx_vector_uint6
                          {
                              zabbix_log(LOG_LEVEL_INFORMATION,"fuck_2:enter add_discovered_host_groups");
                              zbx_vector_uint64_remove_noorder(groupids, i);
+                             nCount = groupids->values_num;
                          }else
                          {
                              i++;
