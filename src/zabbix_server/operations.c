@@ -180,7 +180,8 @@ static void     add_discovered_host_groups(zbx_uint64_t hostid, zbx_vector_uint6
                      zbx_vector_uint64_clear(groupids);
                 }else if( -1 == nDiscoverGroup  &&   nOtherGroupid > 0 )
                 {
-                     for( i = 0; i < groupids->values_num; i++ )
+                     int nCount = groupids->values_num;
+                     for( i = 0; i < nCount;)
                      {
                          int ngroupid = groupids->values[i];
                          zabbix_log(LOG_LEVEL_INFORMATION,"fuck_1:enter add_discovered_host_groups,remove groupid:%d",ngroupid);
@@ -188,6 +189,9 @@ static void     add_discovered_host_groups(zbx_uint64_t hostid, zbx_vector_uint6
                          {
                              zabbix_log(LOG_LEVEL_INFORMATION,"fuck_2:enter add_discovered_host_groups");
                              zbx_vector_uint64_remove_noorder(groupids, i);
+                         }else
+                         {
+                             i++;
                          }
                      }
                 }
