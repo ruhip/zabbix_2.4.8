@@ -258,10 +258,12 @@ void	__zbx_zabbix_log(int level, const char *fmt, ...)
 	zbx_stat_t		buf;
 #ifdef _WINDOWS
 	struct _timeb		current_time;
+        struct _timeb           current_time2;
 	WORD			wType;
 	wchar_t			thread_id[20], *strings[2];
 #else
 	struct timeval		current_time;
+        struct timeval          current_time2;
 #endif
 	if (SUCCEED != ZBX_CHECK_LOG_LEVEL(level))
 		return;
@@ -274,10 +276,30 @@ void	__zbx_zabbix_log(int level, const char *fmt, ...)
 		{
 			if (CONFIG_LOG_FILE_SIZE * ZBX_MEBIBYTE < buf.st_size)
 			{
+                                strscpy(filename_old, log_filename);
+                                zbx_strlcat(filename_old, ".old", MAX_STRING_LEN);
+                                /* add by ruhip 20170118*/
+                                //char szTimeNow[100] = {0};
+                                char *szTimeNow = NULL;
+                                gettimeofday(&current_time2,NULL);
+                                tm = localtime(&current_time2.tv_sec);
+                                //milliseconds = current_time.tv_usec / 1000;
+                                //szTimeNow=zbx_dsprintf(szTimeNow,"%.4d%.2d%.2d:%.2d%.2d%.2d",tm->tm_year + 1900,
+                                //tm->tm_mon + 1,tm->tm_mday,tm->tm_hour,tm->tm_min,tm->tm_sec);
+                                static int nIntNum = 0;
+                                //szTimeNow=zbx_dsprintf(szTimeNow,"_%d",nIntNum);
+                                ++nIntNum;
+                                szTimeNow=zbx_dsprintf(szTimeNow,"%.4d%.2d%.2d:%.2d%.2d%.2d",tm->tm_year + 1900,
+                                tm->tm_mon + 1,tm->tm_mday,tm->tm_hour,tm->tm_min,tm->tm_sec);
+                                zbx_strlcat(filename_old, szTimeNow, MAX_STRING_LEN);
+                                //remove(filename_old);
+                                printf("froad:filename_old,%s\n",filename_old,szTimeNow);
+                                zbx_free(szTimeNow);
+                                /*
 				strscpy(filename_old, log_filename);
 				zbx_strlcat(filename_old, ".old", MAX_STRING_LEN);
 				remove(filename_old);
-
+                                */
 				if (0 != rename(log_filename, filename_old))
 				{
 					log_file = fopen(log_filename, "w");
