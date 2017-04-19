@@ -341,6 +341,10 @@ switch ($this->data['new_condition']['conditiontype']) {
 		$condition = new CTextBox('new_condition[value]', '', ZBX_TEXTBOX_STANDARD_SIZE);
 		break;
 
+        case CONDITION_TYPE_HOST_INGROUP:
+                $condition = new CTextBox('new_condition[value]', 'Group1,Group2', ZBX_TEXTBOX_STANDARD_SIZE);
+                break;
+
 	default:
 		$condition = null;
 }

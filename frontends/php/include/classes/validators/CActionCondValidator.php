@@ -198,6 +198,11 @@ class CActionCondValidator extends CValidator {
 				}
 				break;
 
+                        case CONDITION_TYPE_HOST_INGROUP:
+                                if (zbx_empty($conditionValue)) {
+                                        $this->setError(_('Empty action condition in Group.'));
+                                }
+                                break;
 			default:
 				$this->setError(_('Incorrect action condition type.'));
 		}

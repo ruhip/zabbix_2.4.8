@@ -92,6 +92,8 @@ function condition_type2str($conditionType) {
 			return _('Event type');
 		case CONDITION_TYPE_HOST_METADATA:
 			return _('Host metadata');
+                case CONDITION_TYPE_HOST_INGROUP:
+                        return _('Host In Group');
 		default:
 			return _('Unknown');
 	}
@@ -236,6 +238,9 @@ function condition_value2str($conditiontype, $value) {
 			break;
 		case CONDITION_TYPE_EVENT_TYPE:
 			$str_val = eventType($value);
+			break;
+		case CONDITION_TYPE_HOST_INGROUP:
+			$str_val = $value;
 			break;
 		default:
 			return _('Unknown');
@@ -532,7 +537,8 @@ function get_conditions_by_eventsource($eventsource) {
 		CONDITION_TYPE_DSTATUS,
 		CONDITION_TYPE_DUPTIME,
 		CONDITION_TYPE_DVALUE,
-		CONDITION_TYPE_PROXY
+		CONDITION_TYPE_PROXY,
+                CONDITION_TYPE_HOST_INGROUP
 	);
 	$conditions[EVENT_SOURCE_AUTO_REGISTRATION] = array(
 		CONDITION_TYPE_HOST_NAME,
@@ -752,7 +758,9 @@ function get_operators_by_conditiontype($conditiontype) {
 		CONDITION_OPERATOR_LIKE,
 		CONDITION_OPERATOR_NOT_LIKE
 	);
-
+	$operators[CONDITION_TYPE_HOST_INGROUP] = array(
+		CONDITION_OPERATOR_EQUAL,
+	);
 	if (isset($operators[$conditiontype])) {
 		return $operators[$conditiontype];
 	}
