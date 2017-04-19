@@ -4446,6 +4446,7 @@ void	DBdelete_hosts(zbx_vector_uint64_t *hostids)
 	DBend_multiple_update(&sql, &sql_alloc, &sql_offset);
 
 	DBexecute("%s", sql);
+        zabbix_log(LOG_LEVEL_INFORMATION, "in:%s() froad:sql:%s", __function_name,sql);
 
 	zbx_free(sql);
 

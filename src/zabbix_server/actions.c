@@ -425,6 +425,174 @@ static int	check_trigger_condition(const DB_EVENT *event, DB_CONDITION *conditio
 	return ret;
 }
 
+
+
+
+
+
+static zbx_uint64_t     select_discovered_host2(const DB_EVENT *event)
+{
+        const char      *__function_name = "select_discovered_host2";
+        DB_RESULT       result;
+        DB_ROW          row;
+        zbx_uint64_t    hostid = 0;
+        char            *sql = NULL;
+
+        zabbix_log(LOG_LEVEL_DEBUG, "In %s() eventid:" ZBX_FS_UI64,
+                        __function_name, event->eventid);
+
+        switch (event->object)
+        {
+                case EVENT_OBJECT_DHOST:
+                        sql = zbx_dsprintf(sql,
+                                "select h.hostid,h.status"
+                                " from hosts h,interface i,dservices ds,dchecks dc,drules dr"
+                                " where h.hostid=i.hostid"
+                                        " and i.ip=ds.ip"
+                                        " and ds.dcheckid=dc.dcheckid"
+                                        " and dc.druleid=dr.druleid"
+                                        " and h.status in (%d,%d)"
+                                        " and " ZBX_SQL_NULLCMP("dr.proxy_hostid", "h.proxy_hostid")
+                                        " and i.useip=1"
+                                        " and ds.dhostid=" ZBX_FS_UI64
+                                " order by i.hostid",
+                                HOST_STATUS_MONITORED, HOST_STATUS_NOT_MONITORED,
+                                event->objectid);
+                        break;
+                case EVENT_OBJECT_DSERVICE:
+                        sql = zbx_dsprintf(sql,
+                                "select h.hostid,h.status"
+                                " from hosts h,interface i,dservices ds,dchecks dc,drules dr"
+                                " where h.hostid=i.hostid"
+                                        " and i.ip=ds.ip"
+                                        " and ds.dcheckid=dc.dcheckid"
+                                        " and dc.druleid=dr.druleid"
+                                        " and h.status in (%d,%d)"
+                                        " and " ZBX_SQL_NULLCMP("dr.proxy_hostid", "h.proxy_hostid")
+                                        " and i.useip=1"
+                                        " and ds.dserviceid=" ZBX_FS_UI64
+                                " order by i.hostid",
+                                HOST_STATUS_MONITORED, HOST_STATUS_NOT_MONITORED,
+                                event->objectid);
+                        break;
+                default:
+                        goto exit;
+        }
+
+        result = DBselectN(sql, 1);
+
+        zbx_free(sql);
+
+        if (NULL != (row = DBfetch(result)))
+                ZBX_STR2UINT64(hostid, row[0]);
+        DBfree_result(result);
+exit:
+        zabbix_log(LOG_LEVEL_DEBUG, "End of %s():" ZBX_FS_UI64, __function_name, hostid);
+
+        return hostid;
+}
+
+static int      check_host_in_groups(zbx_uint64_t hostid, zbx_vector_uint64_t *groupids)
+{
+        int ret = FAIL;
+        const char      *__function_name = "froad_check_host_in_groups";
+
+        DB_RESULT       result;
+        DB_ROW          row;
+        zbx_uint64_t    groupid;
+        char            *sql = NULL;
+        size_t          sql_alloc = 256, sql_offset = 0;
+        int             i;
+
+        zabbix_log(LOG_LEVEL_DEBUG, "In %s()", __function_name);
+
+        sql = zbx_malloc(sql, sql_alloc);
+
+        zbx_snprintf_alloc(&sql, &sql_alloc, &sql_offset,
+                        "select groupid"
+                        " from hosts_groups"
+                        " where hostid=" ZBX_FS_UI64
+                                " ",
+                        hostid);
+        //DBadd_condition_alloc(&sql, &sql_alloc, &sql_offset, "groupid", groupids->values, groupids->values_num);
+
+        result = DBselect("%s", sql);
+
+        zbx_free(sql);
+
+        while (NULL != (row = DBfetch(result)))
+        {
+                ZBX_STR2UINT64(groupid, row[0]);
+                zabbix_log(LOG_LEVEL_INFORMATION, "groupid:" ZBX_FS_UI64 , groupid);
+
+                if (FAIL == (i = zbx_vector_uint64_search(groupids, groupid, ZBX_DEFAULT_UINT64_COMPARE_FUNC)))
+                {
+                        continue;
+                }
+                ret = SUCCEED;
+                zabbix_log(LOG_LEVEL_INFORMATION, "froad:in groupids find (%s):" ZBX_FS_UI64 ,__function_name, groupid);
+                break;
+
+        }
+        DBfree_result(result);
+
+
+        zabbix_log(LOG_LEVEL_DEBUG, "End of %s()", __function_name);
+        return ret;
+}
+
+static int host_in_groups(const char* list,const DB_EVENT *event)
+{
+       int              ret = FAIL;
+       const char       *__function_name = "host_in_groups";
+        char            *groupname = NULL;
+        size_t          group_alloc = 0, group_offset;
+        const char      *ptr;
+        DB_RESULT   result;
+        DB_ROW                  row;
+        zbx_uint64_t     groupid=0;
+        zbx_vector_uint64_t     groupids;
+        zbx_vector_uint64_create(&groupids);
+        zbx_uint64_t            hostid;
+        if (0 == (hostid = select_discovered_host2(event)))
+        {
+                zabbix_log(LOG_LEVEL_INFORMATION, "sorry: in(%s) hostid=0",__function_name);
+                return ret;
+        }
+        for (ptr = list; '\0' != *ptr; list = ptr + 1)
+        {
+                if (NULL == (ptr = strchr(list, ',')))
+                        ptr = list + strlen(list);
+
+                group_offset = 0;
+                zbx_strncpy_alloc(&groupname, &group_alloc, &group_offset, list, ptr - list);
+
+                char            *sql = NULL;
+                sql = zbx_dsprintf(sql,"select groupid from groups where name='%s' ",groupname);
+                result = DBselectN(sql, 1);
+                zbx_free(sql);
+                if (NULL != (row = DBfetch(result)))
+                {
+                      ZBX_STR2UINT64(groupid, row[0]);
+                      zbx_vector_uint64_append(&groupids, groupid);
+                      zabbix_log(LOG_LEVEL_INFORMATION, "groupname:%s,groupid:" ZBX_FS_UI64 , groupname,groupid);
+
+                }
+                DBfree_result(result);
+
+        }
+        if( SUCCEED == check_host_in_groups(hostid,&groupids))
+        {
+                ret = SUCCEED;
+        }
+
+        zbx_free(groupname);
+        zbx_vector_uint64_destroy(&groupids);
+
+       return ret;
+}
+
+
 /******************************************************************************
  *                                                                            *
  * Function: check_discovery_condition                                        *
@@ -783,6 +951,15 @@ static int	check_discovery_condition(const DB_EVENT *event, DB_CONDITION *condit
 			DBfree_result(result);
 		}
 	}
+        else if( CONDITION_TYPE_HOST_INGROUP == condition->conditiontype )
+        {
+                zabbix_log(LOG_LEVEL_INFORMATION, "froad: CONDITION_TYPE_HOST_INGROUP==condition->conditiontype");
+                if( SUCCEED == host_in_groups(condition->value,event) )
+                {
+                         zabbix_log(LOG_LEVEL_INFORMATION, "froad:yes host in groups");
+                         ret = SUCCEED;
+                }
+        }
 	else
 	{
 		zabbix_log(LOG_LEVEL_ERR, "unsupported condition type [%d] for condition id [" ZBX_FS_UI64 "]",

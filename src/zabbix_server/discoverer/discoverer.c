@@ -519,7 +519,7 @@ static void	process_rule(DB_DRULE *drule)
 			now = time(NULL);
 
 			zabbix_log(LOG_LEVEL_DEBUG, "%s() ip:'%s'", __function_name, ip);
-
+                        zabbix_log(LOG_LEVEL_INFORMATION, "froad:process_rule:%s() ip:'%s'", __function_name, ip);
 			alarm(CONFIG_TIMEOUT);
 			zbx_gethost_by_ip(ip, dns, sizeof(dns));
 			alarm(0);
@@ -674,6 +674,7 @@ out:
 
 static int	process_discovery(int now)
 {
+        zabbix_log(LOG_LEVEL_INFORMATION,"froad:begin process_discovery.");
 	DB_RESULT	result;
 	DB_ROW		row;
 	DB_DRULE	drule;
@@ -719,7 +720,7 @@ static int	process_discovery(int now)
 		rule_count++;
 	}
 	DBfree_result(result);
-
+        zabbix_log(LOG_LEVEL_INFORMATION,"froad:end process_discovery.");
 	return rule_count;	/* performance metric */
 }
 

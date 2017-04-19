@@ -318,6 +318,9 @@ const char	*zbx_dservice_type_string(zbx_dservice_type_t service);
 #define CONDITION_TYPE_EVENT_TYPE		23
 #define CONDITION_TYPE_HOST_METADATA		24
 
+/*froad modify 20170419*/
+#define CONDITION_TYPE_HOST_INGROUP             100
+
 /* condition operators */
 #define CONDITION_OPERATOR_EQUAL		0
 #define CONDITION_OPERATOR_NOT_EQUAL		1
