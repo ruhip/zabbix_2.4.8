@@ -34,7 +34,8 @@ function eventSource($source = null) {
 		EVENT_SOURCE_TRIGGERS => _('trigger'),
 		EVENT_SOURCE_DISCOVERY => _('discovery'),
 		EVENT_SOURCE_AUTO_REGISTRATION => _('auto registration'),
-		EVENT_SOURCE_INTERNAL => _x('internal', 'event source')
+		EVENT_SOURCE_INTERNAL => _x('internal', 'event source'),
+                EVENT_SOURCE_AUTO_UNREGISTRATION => _('auto unregistration')
 	);
 
 	if ($source === null) {
@@ -65,7 +66,8 @@ function eventObject($object = null) {
 		EVENT_OBJECT_DSERVICE => _('discovered service'),
 		EVENT_OBJECT_AUTOREGHOST => _('auto-registered host'),
 		EVENT_OBJECT_ITEM => _('item'),
-		EVENT_OBJECT_LLDRULE => _('low-level discovery rule')
+		EVENT_OBJECT_LLDRULE => _('low-level discovery rule'),
+                EVENT_OBJECT_AUTOUNREGHOST => _('auto-unregistered host')
 	);
 
 	if ($object === null) {
@@ -92,7 +94,8 @@ function eventSourceObjects() {
 		array('source' => EVENT_SOURCE_AUTO_REGISTRATION, 'object' => EVENT_OBJECT_AUTOREGHOST),
 		array('source' => EVENT_SOURCE_INTERNAL, 'object' => EVENT_OBJECT_TRIGGER),
 		array('source' => EVENT_SOURCE_INTERNAL, 'object' => EVENT_OBJECT_ITEM),
-		array('source' => EVENT_SOURCE_INTERNAL, 'object' => EVENT_OBJECT_LLDRULE)
+		array('source' => EVENT_SOURCE_INTERNAL, 'object' => EVENT_OBJECT_LLDRULE),
+                array('source' => EVENT_SOURCE_AUTO_UNREGISTRATION, 'object' => EVENT_OBJECT_AUTOUNREGHOST)
 	);
 }
 

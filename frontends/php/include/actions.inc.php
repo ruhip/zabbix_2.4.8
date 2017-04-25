@@ -80,6 +80,8 @@ function condition_type2str($conditionType) {
 			return _('Discovery status');
 		case CONDITION_TYPE_DUPTIME:
 			return _('Uptime/Downtime');
+                case CONDITION_TYPE_UNAVAILABLETIME:
+                        return _('Unavailable time');
 		case CONDITION_TYPE_DVALUE:
 			return _('Received value');
 		case CONDITION_TYPE_EVENT_ACKNOWLEDGED:
@@ -227,6 +229,9 @@ function condition_value2str($conditiontype, $value) {
 		case CONDITION_TYPE_DUPTIME:
 			$str_val = $value;
 			break;
+                case CONDITION_TYPE_UNAVAILABLETIME:
+                        $str_val = $value;
+                        break;
 		case CONDITION_TYPE_DVALUE:
 			$str_val = $value;
 			break;
@@ -539,12 +544,20 @@ function get_conditions_by_eventsource($eventsource) {
 		CONDITION_TYPE_DVALUE,
 		CONDITION_TYPE_PROXY,
                 CONDITION_TYPE_HOST_INGROUP
+                /*CONDITION_TYPE_UNAVAILABLETIME*/
 	);
 	$conditions[EVENT_SOURCE_AUTO_REGISTRATION] = array(
 		CONDITION_TYPE_HOST_NAME,
 		CONDITION_TYPE_PROXY,
 		CONDITION_TYPE_HOST_METADATA
 	);
+        $conditions[EVENT_SOURCE_AUTO_UNREGISTRATION] = array(
+                CONDITION_TYPE_HOST_NAME,
+                CONDITION_TYPE_PROXY,
+                CONDITION_TYPE_HOST_METADATA,
+                CONDITION_TYPE_HOST_INGROUP,
+                CONDITION_TYPE_DHOST_IP
+        );
 	$conditions[EVENT_SOURCE_INTERNAL] = array(
 		CONDITION_TYPE_APPLICATION,
 		CONDITION_TYPE_EVENT_TYPE,
@@ -596,6 +609,15 @@ function get_operations_by_eventsource($eventsource) {
 		OPERATION_TYPE_TEMPLATE_ADD,
 		OPERATION_TYPE_HOST_DISABLE
 	);
+        $operations[EVENT_SOURCE_AUTO_UNREGISTRATION] = array(
+                OPERATION_TYPE_MESSAGE,
+                OPERATION_TYPE_COMMAND,
+                OPERATION_TYPE_HOST_ADD,
+                OPERATION_TYPE_HOST_REMOVE,
+                OPERATION_TYPE_GROUP_ADD,
+                OPERATION_TYPE_TEMPLATE_ADD,
+                OPERATION_TYPE_HOST_DISABLE
+        );
 	$operations[EVENT_SOURCE_INTERNAL] = array(
 		OPERATION_TYPE_MESSAGE
 	);
@@ -731,6 +753,9 @@ function get_operators_by_conditiontype($conditiontype) {
 		CONDITION_OPERATOR_MORE_EQUAL,
 		CONDITION_OPERATOR_LESS_EQUAL
 	);
+        $operators[CONDITION_TYPE_UNAVAILABLETIME] = array(
+                CONDITION_OPERATOR_MORE_EQUAL
+        );
 	$operators[CONDITION_TYPE_DVALUE] = array(
 		CONDITION_OPERATOR_EQUAL,
 		CONDITION_OPERATOR_NOT_EQUAL,

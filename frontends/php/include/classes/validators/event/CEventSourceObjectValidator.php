@@ -41,7 +41,11 @@ class CEventSourceObjectValidator extends CValidator {
 			EVENT_OBJECT_TRIGGER => 1,
 			EVENT_OBJECT_ITEM => 1,
 			EVENT_OBJECT_LLDRULE => 1
-		)
+		),
+                EVENT_SOURCE_AUTO_UNREGISTRATION => array(
+                        EVENT_OBJECT_AUTOUNREGHOST => 1
+                )
+               
 	);
 
 	/**

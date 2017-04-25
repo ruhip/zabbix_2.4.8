@@ -34,6 +34,7 @@ $sourceComboBox->addItem(EVENT_SOURCE_TRIGGERS, _('Triggers'));
 $sourceComboBox->addItem(EVENT_SOURCE_DISCOVERY, _('Discovery'));
 $sourceComboBox->addItem(EVENT_SOURCE_AUTO_REGISTRATION, _('Auto registration'));
 $sourceComboBox->addItem(EVENT_SOURCE_INTERNAL, _x('Internal', 'event source'));
+/*$sourceComboBox->addItem(EVENT_SOURCE_AUTO_UNREGISTRATION, _('Auto unregistration'));*/
 $filterForm = new CForm('get');
 $filterForm->addItem(array(_('Event source'), SPACE, $sourceComboBox));
 

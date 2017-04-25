@@ -447,6 +447,7 @@ static void	process_checks(DB_DRULE *drule, DB_DHOST *dhost, int *host_status,
 	DBfree_result(result);
 }
 
+
 /******************************************************************************
  *                                                                            *
  * Function: process_rule                                                     *
@@ -523,10 +524,12 @@ static void	process_rule(DB_DRULE *drule)
 			alarm(CONFIG_TIMEOUT);
 			zbx_gethost_by_ip(ip, dns, sizeof(dns));
 			alarm(0);
+                        zabbix_log(LOG_LEVEL_INFORMATION, "froad:in(%s) zbx_gethost_by_ip ip:'%s' dns:%s", __function_name, ip,dns);
 
 			if (0 != drule->unique_dcheckid)
 				process_checks(drule, &dhost, &host_status, ip, dns, 1, now);
 			process_checks(drule, &dhost, &host_status, ip, dns, 0, now);
+                        zabbix_log(LOG_LEVEL_INFORMATION, "froad:in(%s)after process_checks ip:'%s'", __function_name, ip);
 
 			DBbegin();
 
@@ -559,6 +562,35 @@ next:
 	}
 out:
 	zabbix_log(LOG_LEVEL_DEBUG, "End of %s()", __function_name);
+}
+
+
+
+static void     process_rule2(DB_DRULE *drule)
+{
+        const char      *__function_name = "process_rule2";
+
+        zabbix_log(LOG_LEVEL_DEBUG, "In %s() rule:'%s' range:'%s'", __function_name, drule->name, drule->iprange);
+        DB_RESULT       result;
+        DB_ROW          row;
+        //DB_DRULE        drule;
+        int             rule_count = 0;
+        zbx_uint64_t    druleid;
+
+        result = DBselect("select distinct r.ip,r.port from interface r ");
+
+        while (NULL != (row = DBfetch(result)))
+        {
+              if( strcmp("127.0.0.1",row[0]) == 0 )
+              {
+                       continue;
+              }
+              drule->iprange=row[0];
+              zabbix_log(LOG_LEVEL_DEBUG, "In %s() rule:'%s' newrange:'%s'", __function_name, drule->name, drule->iprange);
+              process_rule(drule);
+        }
+        DBfree_result(result);
+        zabbix_log(LOG_LEVEL_DEBUG, "Out %s() rule:'%s'", __function_name, drule->name);
 }
 
 /******************************************************************************
@@ -682,7 +714,7 @@ static int	process_discovery(int now)
 	zbx_uint64_t	druleid;
 
 	result = DBselect(
-			"select distinct r.druleid,r.iprange,r.name,c.dcheckid,r.proxy_hostid"
+			"select distinct r.druleid,r.iprange,r.name,c.dcheckid,r.proxy_hostid,r.groups"
 			" from drules r"
 				" left join dchecks c"
 					" on c.druleid=r.druleid"
@@ -709,7 +741,21 @@ static int	process_discovery(int now)
 			drule.name = row[2];
 			ZBX_DBROW2UINT64(drule.unique_dcheckid, row[3]);
 
-			process_rule(&drule);
+                        /*char * sgroup = NULL;
+                        size_t		value_offset = 0;
+                        size_t          value_alloc = 255;
+                        sgroup = zbx_malloc(sgroup, value_alloc);
+                        zbx_strcpy_alloc(&sgroup,&value_alloc,&value_offset,row[5]);
+                        zbx_rtrim(sgroup, ZBX_WHITESPACE);*/
+                        zabbix_log(LOG_LEVEL_INFORMATION,"froad:r.group=%s,",row[5]);
+                        if ( strlen(row[5]) == 0 )
+                        {
+			     process_rule(&drule);
+                        }else
+                        {
+                             process_rule2(&drule);
+                        }
+                       // zbx_free(sgroup);
 		}
 
 		if (0 != (daemon_type & ZBX_DAEMON_TYPE_SERVER))

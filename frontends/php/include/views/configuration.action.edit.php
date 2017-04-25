@@ -320,6 +320,9 @@ switch ($this->data['new_condition']['conditiontype']) {
 	case CONDITION_TYPE_DUPTIME:
 		$condition = new CNumericBox('new_condition[value]', 600, 15);
 		break;
+        case CONDITION_TYPE_UNAVAILABLETIME:
+                $condition = new CNumericBox('new_condition[value]', 300, 15);
+                break;
 
 	case CONDITION_TYPE_DVALUE:
 		$condition = new CTextBox('new_condition[value]', '', ZBX_TEXTBOX_STANDARD_SIZE);
@@ -542,6 +545,10 @@ if (!empty($this->data['new_operation'])) {
 					$this->data['new_operation']['opmessage']['subject'] = ACTION_DEFAULT_SUBJ_AUTOREG;
 					$this->data['new_operation']['opmessage']['message'] = ACTION_DEFAULT_MSG_AUTOREG;
 				}
+                                elseif ($this->data['eventsource'] == EVENT_SOURCE_AUTO_UNREGISTRATION) {
+                                        $this->data['new_operation']['opmessage']['subject'] = ACTION_DEFAULT_SUBJ_AUTOUNREG;
+                                        $this->data['new_operation']['opmessage']['message'] = ACTION_DEFAULT_MSG_AUTOUNREG;
+                                }
 				else {
 					$this->data['new_operation']['opmessage']['subject'] = '';
 					$this->data['new_operation']['opmessage']['message'] = '';

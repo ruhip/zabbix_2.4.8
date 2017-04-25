@@ -115,6 +115,7 @@ void	zbx_gethost_by_ip(const char *ip, char *host, size_t hostlen)
 	struct hostent  *hst;
 
 	assert(ip);
+        zabbix_log(LOG_LEVEL_INFORMATION, "froad: in(zbx_gethost_by_ip),ip:%s,host:%s,hostlen:%d",ip,host,hostlen);
 
 	if (0 == inet_aton(ip, &addr))
 	{
@@ -124,14 +125,25 @@ void	zbx_gethost_by_ip(const char *ip, char *host, size_t hostlen)
 
 	if (NULL == (hst = gethostbyaddr((char *)&addr, sizeof(addr), AF_INET)))
 	{
+zabbix_log(LOG_LEVEL_INFORMATION, "froad: in(zbx_gethost_by_ip),return ip:%s",ip);
 		host[0] = '\0';
 		return;
 	}
 
 	zbx_strlcpy(host, hst->h_name, hostlen);
+        zabbix_log(LOG_LEVEL_INFORMATION, "froad: in(zbx_gethost_by_ip),host:%s,hostlen:%d",host,hostlen);
+
+        zbx_sock_t	s;
+       
+        //if (SUCCEED == (ret = zbx_tcp_connect(&s, CONFIG_SOURCE_IP, ip, 10050, 0)))
+	{
+        }
 }
 #endif	/* HAVE_IPV6 */
 #endif	/* _WINDOWS */
+
+
+
 
 /******************************************************************************
  *                                                                            *

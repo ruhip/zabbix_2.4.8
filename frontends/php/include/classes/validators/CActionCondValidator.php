@@ -189,6 +189,7 @@ class CActionCondValidator extends CValidator {
 
 			case CONDITION_TYPE_TRIGGER_NAME:
 			case CONDITION_TYPE_DUPTIME:
+                        case CONDITION_TYPE_UNAVAILABLETIME:
 			case CONDITION_TYPE_DVALUE:
 			case CONDITION_TYPE_APPLICATION:
 			case CONDITION_TYPE_HOST_NAME:

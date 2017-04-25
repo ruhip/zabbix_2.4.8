@@ -36,6 +36,7 @@ $fields = array(
 	'name' =>			array(T_ZBX_STR, O_OPT, null,	NOT_EMPTY,	'isset({add}) || isset({update})'),
 	'proxy_hostid' =>	array(T_ZBX_INT, O_OPT, null,	DB_ID,		'isset({add}) || isset({update})'),
 	'iprange' =>		array(T_ZBX_STR, O_OPT, null,	null,		'isset({add}) || isset({update})'),
+        'groups' =>		array(T_ZBX_STR, O_OPT, null,	null,		'isset({add}) || isset({update})'),
 	'delay' =>			array(T_ZBX_INT, O_OPT, null,	BETWEEN(1, SEC_PER_WEEK), 'isset({add}) || isset({update})'),
 	'status' =>			array(T_ZBX_INT, O_OPT, null,	IN('0,1'),	null),
 	'uniqueness_criteria' => array(T_ZBX_STR, O_OPT, null, null,	'isset({add}) || isset({update})', _('Device uniqueness criteria')),
@@ -70,7 +71,7 @@ $_REQUEST['dchecks'] = getRequest('dchecks', array());
 if (isset($_REQUEST['druleid'])) {
 	$dbDRule = API::DRule()->get(array(
 		'druleids' => getRequest('druleid'),
-		'output' => array('name', 'proxy_hostid', 'iprange', 'delay', 'status'),
+		'output' => array('name', 'proxy_hostid', 'iprange','groups', 'delay', 'status'),
 		'selectDChecks' => array(
 			'type', 'key_', 'snmp_community', 'ports', 'snmpv3_securityname', 'snmpv3_securitylevel',
 			'snmpv3_authpassphrase', 'snmpv3_privpassphrase', 'uniq', 'snmpv3_authprotocol', 'snmpv3_privprotocol',
@@ -133,6 +134,7 @@ if (hasRequest('add') || hasRequest('update')) {
 		'name' => getRequest('name'),
 		'proxy_hostid' => getRequest('proxy_hostid'),
 		'iprange' => getRequest('iprange'),
+                'groups' => getRequest('groups'),
 		'delay' => getRequest('delay'),
 		'status' => getRequest('status'),
 		'dchecks' => $dChecks
@@ -249,6 +251,7 @@ if (isset($_REQUEST['form'])) {
 		$data['drule']['proxy_hostid'] = getRequest('proxy_hostid', 0);
 		$data['drule']['name'] = getRequest('name', '');
 		$data['drule']['iprange'] = getRequest('iprange', '192.168.0.1-254');
+                $data['drule']['groups'] = getRequest('groups', '');
 		$data['drule']['delay'] = getRequest('delay', SEC_PER_HOUR);
 		$data['drule']['status'] = getRequest('status', DRULE_STATUS_ACTIVE);
 		$data['drule']['dchecks'] = getRequest('dchecks', array());
@@ -295,7 +298,7 @@ else {
 
 	// get drules
 	$data['drules'] = API::DRule()->get(array(
-		'output' => array('proxy_hostid', 'name', 'status', 'iprange', 'delay'),
+		'output' => array('proxy_hostid', 'name', 'status', 'iprange','groups', 'delay'),
 		'selectDChecks' => array('type'),
 		'editable' => true,
 		'sortfield' => $sortField,

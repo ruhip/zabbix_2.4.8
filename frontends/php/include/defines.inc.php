@@ -214,6 +214,7 @@ define('CONDITION_TYPE_HOST_NAME',			22);
 define('CONDITION_TYPE_EVENT_TYPE',			23);
 define('CONDITION_TYPE_HOST_METADATA',		24);
 define('CONDITION_TYPE_HOST_INGROUP',                        100);
+define('CONDITION_TYPE_UNAVAILABLETIME',                        101);
 define('CONDITION_OPERATOR_EQUAL',		0);
 define('CONDITION_OPERATOR_NOT_EQUAL',	1);
 define('CONDITION_OPERATOR_LIKE',		2);
@@ -462,6 +463,7 @@ define('EZ_TEXTING_LIMIT_CANADA',	1);
 define('ACTION_DEFAULT_SUBJ_TRIGGER', '{TRIGGER.STATUS}: {TRIGGER.NAME}');
 define('ACTION_DEFAULT_SUBJ_AUTOREG', 'Auto registration: {HOST.HOST}');
 define('ACTION_DEFAULT_SUBJ_DISCOVERY', 'Discovery: {DISCOVERY.DEVICE.STATUS} {DISCOVERY.DEVICE.IPADDRESS}');
+define('ACTION_DEFAULT_SUBJ_AUTOUNREG', 'Auto unregistration: {HOST.HOST}');
 
 define('ACTION_DEFAULT_MSG_TRIGGER', "Trigger: {TRIGGER.NAME}\nTrigger status: {TRIGGER.STATUS}\n".
 		"Trigger severity: {TRIGGER.SEVERITY}\nTrigger URL: {TRIGGER.URL}\n\nItem values:\n\n".
@@ -471,6 +473,8 @@ define('ACTION_DEFAULT_MSG_TRIGGER', "Trigger: {TRIGGER.NAME}\nTrigger status: {
 		"Original event ID: {EVENT.ID}"
 );
 define('ACTION_DEFAULT_MSG_AUTOREG', "Host name: {HOST.HOST}\nHost IP: {HOST.IP}\nAgent port: {HOST.PORT}");
+define('ACTION_DEFAULT_MSG_AUTOUNREG', "Host name: {HOST.HOST}\nHost IP: {HOST.IP}\nAgent port: {HOST.PORT}");
+
 define('ACTION_DEFAULT_MSG_DISCOVERY', "Discovery rule: {DISCOVERY.RULE.NAME}\n\nDevice IP:{DISCOVERY.DEVICE.IPADDRESS}\n".
 		"Device DNS: {DISCOVERY.DEVICE.DNS}\nDevice status: {DISCOVERY.DEVICE.STATUS}\n".
 		"Device uptime: {DISCOVERY.DEVICE.UPTIME}\n\nDevice service name: {DISCOVERY.SERVICE.NAME}\n".
@@ -666,6 +670,7 @@ define('EVENT_SOURCE_TRIGGERS',				0);
 define('EVENT_SOURCE_DISCOVERY',			1);
 define('EVENT_SOURCE_AUTO_REGISTRATION',	2);
 define('EVENT_SOURCE_INTERNAL', 			3);
+define('EVENT_SOURCE_AUTO_UNREGISTRATION',        100);
 
 define('EVENT_OBJECT_TRIGGER',			0);
 define('EVENT_OBJECT_DHOST',			1);
@@ -673,6 +678,7 @@ define('EVENT_OBJECT_DSERVICE',			2);
 define('EVENT_OBJECT_AUTOREGHOST',		3);
 define('EVENT_OBJECT_ITEM',				4);
 define('EVENT_OBJECT_LLDRULE',			5);
+define('EVENT_OBJECT_AUTOUNREGHOST',              100);
 
 define('GRAPH_YAXIS_TYPE_CALCULATED',	0);
 define('GRAPH_YAXIS_TYPE_FIXED',		1);

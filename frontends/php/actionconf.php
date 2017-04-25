@@ -36,7 +36,7 @@ $fields = array(
 	'actionid' =>			array(T_ZBX_INT, O_OPT, P_SYS,	DB_ID,		'isset({form}) && {form} == "update"'),
 	'name' =>				array(T_ZBX_STR, O_OPT, null,	NOT_EMPTY,	'isset({add}) || isset({update})', _('Name')),
 	'eventsource' =>		array(T_ZBX_INT, O_OPT, null,
-		IN(array(EVENT_SOURCE_TRIGGERS, EVENT_SOURCE_DISCOVERY, EVENT_SOURCE_AUTO_REGISTRATION, EVENT_SOURCE_INTERNAL)),
+		IN(array(EVENT_SOURCE_TRIGGERS, EVENT_SOURCE_DISCOVERY, EVENT_SOURCE_AUTO_REGISTRATION, EVENT_SOURCE_INTERNAL, EVENT_SOURCE_AUTO_UNREGISTRATION)),
 		null
 	),
 	'evaltype' =>			array(T_ZBX_INT, O_OPT, null,
@@ -449,6 +449,10 @@ if (hasRequest('form')) {
 				$data['action']['def_shortdata'] = getRequest('def_shortdata', ACTION_DEFAULT_SUBJ_AUTOREG);
 				$data['action']['def_longdata'] = getRequest('def_longdata', ACTION_DEFAULT_MSG_AUTOREG);
 			}
+                        elseif ($data['eventsource'] == EVENT_SOURCE_AUTO_UNREGISTRATION) {
+                                $data['action']['def_shortdata'] = getRequest('def_shortdata', ACTION_DEFAULT_SUBJ_AUTOUNREG);
+                                $data['action']['def_longdata'] = getRequest('def_longdata', ACTION_DEFAULT_MSG_AUTOUNREG);
+                        }
 			else {
 				$data['action']['def_shortdata'] = getRequest('def_shortdata');
 				$data['action']['def_longdata'] = getRequest('def_longdata');

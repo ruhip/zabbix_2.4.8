@@ -39,6 +39,7 @@ $discoveryTable->setHeader(array(
 	new CCheckBox('all_drules', null, "checkAll('".$discoveryForm->getName()."', 'all_drules', 'g_druleid');"),
 	make_sorting_header(_('Name'), 'name', $this->data['sort'], $this->data['sortorder']),
 	_('IP range'),
+        _('Groups'),
 	_('Delay'),
 	_('Checks'),
 	_('Status')
@@ -56,6 +57,7 @@ foreach ($data['drules'] as $drule) {
 		new CCheckBox('g_druleid['.$drule['druleid'].']', null, null, $drule['druleid']),
 		$drule['description'],
 		$drule['iprange'],
+                $drule['groups'],
 		$drule['delay'],
 		!empty($drule['checks']) ? implode(', ', $drule['checks']) : '',
 		$status

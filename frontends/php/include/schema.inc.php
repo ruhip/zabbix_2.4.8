@@ -583,6 +583,12 @@ return array(
 				'length' => 255,
 				'default' => '',
 			),
+                        'groups' => array(
+                                'null' => true,
+                                'type' => DB::FIELD_TYPE_CHAR,
+                                'length' => 255,
+                                'default' => '',
+                        ),
 			'delay' => array(
 				'null' => false,
 				'type' => DB::FIELD_TYPE_INT,

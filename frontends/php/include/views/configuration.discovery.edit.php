@@ -46,6 +46,7 @@ foreach ($this->data['proxies'] as $proxy) {
 }
 $discoveryFormList->addRow(_('Discovery by proxy'), $proxyComboBox);
 $discoveryFormList->addRow(_('IP range'), new CTextBox('iprange', $this->data['drule']['iprange'], ZBX_TEXTBOX_SMALL_SIZE));
+$discoveryFormList->addRow(_('Host in groups'), new CTextBox('groups', $this->data['drule']['groups'], ZBX_TEXTBOX_SMALL_SIZE));
 $discoveryFormList->addRow(_('Delay (in sec)'), new CNumericBox('delay', $this->data['drule']['delay'], 8));
 
 // append checks to form list
